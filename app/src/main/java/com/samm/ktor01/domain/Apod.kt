@@ -24,19 +24,19 @@ data class Response(
 @Serializable
 data class Apod(
     @SerialName("copyright")
-    val copyright: String,
+    val copyright: String? = null,
     @SerialName("date")
-    val date: String,
+    val date: String? = null,
     @SerialName("explanation")
-    val explanation: String,
+    val explanation: String? = null,
     @SerialName("hdurl")
-    val hdUrl: String,
+    @JvmField val hdUrl: String? = null,
     @SerialName("media_type")
-    val mediaType: String,
+    val mediaType: String? = null,
     @SerialName("service_version")
-    val serviceVersion: String,
+    val serviceVersion: String? = null,
     @SerialName("title")
-    val title: String,
+    val title: String? = null,
     @SerialName("url")
-    val url: String
+    val url: String? = null
 )
