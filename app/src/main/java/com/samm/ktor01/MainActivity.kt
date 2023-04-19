@@ -1,5 +1,6 @@
 package com.samm.ktor01
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.widget.DatePicker
@@ -19,36 +20,51 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
-import com.samm.ktor01.domain.Apod
-import com.samm.ktor01.domain.Response
 import com.samm.ktor01.presentation.AstroViewModel
+import com.samm.ktor01.presentation.components.BottomNavigation
+import com.samm.ktor01.presentation.navigation.AppNavigation
 import com.samm.ktor01.ui.theme.Ktor01Theme
 import java.util.*
 
 /**
- *      Todo: Add these:
- *          - Bottom Navigation Bar with Pages for each type of endpoint we can get
+ *      Todo:
  *          - Conditional for media types - image, and video
+ *          - Clean up
+ *          - Component alignments
  */
 
 class MainActivity : ComponentActivity() {
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+
+            val viewModel: AstroViewModel = viewModel()
+            viewModel.getSingleItemData()
+            viewModel.getDataListByCount(10)
+
             Ktor01Theme {
-                val viewModel: AstroViewModel = viewModel()
-                //val data = viewModel.responseFlow.collectAsStateWithLifecycle()
-                val dataList = viewModel.responseFlowList.collectAsStateWithLifecycle()
-                val dataListDate = viewModel.responseByFlowList.collectAsStateWithLifecycle()
-                
+                val navController = rememberNavController()
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    //GetAstroDataList(dataList = dataList, viewModel = viewModel)
-                    GetAstroDataByDate(data = dataListDate, viewModel = viewModel)
+                    Scaffold(bottomBar = {
+                        BottomNavigation(onTabSelected = {
+                            // Navigate to the selected screen using a navController
+                            when (it) {
+                                0 -> { navController.navigate("screen1") }
+                                1 -> { navController.navigate("screen2") }
+                                2 -> { navController.navigate("screen3") }
+                            }
+                        })
+                    }, content = {
+                        AppNavigation(navController)
+                    })
                 }
             }
         }
@@ -57,13 +73,46 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetAstroDataByDate(data:  State<Response?>, viewModel: AstroViewModel) {
+fun GetSingleItemData(viewModel: AstroViewModel) {
+
+    val data = viewModel.responseFlow.collectAsStateWithLifecycle()
+    val date = data.value?.date
+    val explanation = data.value?.explanation
+    val hdurl = data.value?.hdUrl
+    val title = data.value?.title
+    val media_type = data.value?.mediaType // Todo: use this to determine if we need a media player or async image
+
+
+    LazyColumn {
+
+        data.value?.let {
+            item {
+                Card(
+                    modifier = Modifier.padding(15.dp)
+                ) {
+                    Column(modifier = Modifier.padding(15.dp)) {
+                        title?.let { Text(text = it) }
+                        hdurl?.let { AsyncImage(model = it, contentDescription = "HD Image") }
+                        explanation?.let { Text(text = it) }
+                        date?.let { Text(text = it) }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun GetAstroDataByDate(viewModel: AstroViewModel) {
+
+    val data = viewModel.responseByFlowList.collectAsStateWithLifecycle()
 
     val date = data.value?.date
     val explanation = data.value?.explanation
     val hdurl = data.value?.hdUrl
     val title = data.value?.title
-    val media_type = data.value?.mediaType
+    val media_type = data.value?.mediaType // Todo: use this to determine if we need a media player or async image
 
 
     LazyColumn {
@@ -93,9 +142,11 @@ fun GetAstroDataByDate(data:  State<Response?>, viewModel: AstroViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GetAstroDataList(
-    dataList:  State<List<Apod?>>, // change this back to List<Apod?> instead of Resource?
-    viewModel: AstroViewModel
+    viewModel: AstroViewModel,
+    count: Int = 10
 ) {
+    val dataList = viewModel.responseFlowList.collectAsStateWithLifecycle()
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -121,15 +172,8 @@ fun GetAstroDataList(
                         date?.let { Text(text = it) }
                         copyright?.let { Text(text = it) }
                     }
-                    
                 }
             }
-        }
-
-
-        // Todo: This is not working
-        item {
-            MyDatePicker(viewModel = viewModel)
         }
     }
 }
@@ -163,12 +207,10 @@ fun MyDatePicker(viewModel: AstroViewModel) {
     // initial values as current values (present year, month and day)
     val mDatePickerDialog = DatePickerDialog(
         mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int ->
-            mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear"
+        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
+            mDate.value = "$dayOfMonth/${month+1}/$year"
 
-            // Todo: Call the function that gets the data from the endpoint that uses a date
-            //viewModel.getDataListByDate("$mYear-0${mMonth+1}-$mDayOfMonth")
-            viewModel.getData("$mYear-0${mMonth+1}-$mDayOfMonth")
+            viewModel.getData("$year-0${month+1}-$dayOfMonth")
 
         }, mYear, mMonth, mDay
     )
@@ -207,7 +249,7 @@ fun MyContent() {
 
     val mDatePickerDialog = DatePickerDialog(
         mContext,
-        { _: DatePicker, mYear: Int, mMonth: Int, mDayOfMonth: Int -> mDate.value = "$mDayOfMonth/${mMonth+1}/$mYear" },
+        { _: DatePicker, year: Int, month: Int, day: Int -> mDate.value = "$day/${month+1}/$year" },
         mYear,
         mMonth,
         mDay

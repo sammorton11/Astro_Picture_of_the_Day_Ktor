@@ -1,7 +1,6 @@
 package com.samm.ktor01.data
 
 import android.util.Log
-import com.samm.ktor01.domain.Response
 import com.samm.ktor01.core.Constants
 import com.samm.ktor01.core.Constants.BASE_URL
 import com.samm.ktor01.domain.Apod
@@ -10,7 +9,7 @@ import io.ktor.utils.io.*
 
 object Repository {
 
-    suspend fun getData(): Response {
+    suspend fun getData(): Apod {
         return KtorClient.createHttpClient().use {
             it.get(BASE_URL)
         }
@@ -22,7 +21,7 @@ object Repository {
         }
     }
 
-    suspend fun getDataByDate(date: String): Response? {
+    suspend fun getDataByDate(date: String): Apod? {
         return try {
             KtorClient.createHttpClient().use {
                 it.get("https://api.nasa.gov/planetary/apod?api_key=${Constants.API_KEY}&date=$date")
