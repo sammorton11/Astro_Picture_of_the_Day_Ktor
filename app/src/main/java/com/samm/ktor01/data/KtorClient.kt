@@ -1,4 +1,4 @@
-package com.samm.ktor01
+package com.samm.ktor01.data
 
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -15,6 +15,7 @@ object KtorClient {
         encodeDefaults = true
         ignoreUnknownKeys = true
     }
+
     val httpClient = HttpClient {
 
         install(JsonFeature) {
