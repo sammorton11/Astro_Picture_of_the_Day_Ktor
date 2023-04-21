@@ -2,6 +2,7 @@ package com.samm.ktor01
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -14,6 +15,8 @@ import com.samm.ktor01.presentation.AstroViewModel
 import com.samm.ktor01.presentation.components.BottomNavigation
 import com.samm.ktor01.presentation.navigation.AppNavigation
 import com.samm.ktor01.ui.theme.Ktor01Theme
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**
@@ -33,9 +36,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
+            val currentDate = LocalDate.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val formattedDate = currentDate.format(formatter)
+
             val viewModel: AstroViewModel = viewModel()
             viewModel.getSingleItemData()
-            viewModel.getDataListByCount(10)
+            viewModel.getDataByList(10)
+            viewModel.getDataByDate(formattedDate)
 
             Ktor01Theme {
                 val navController = rememberNavController()
@@ -54,7 +62,9 @@ class MainActivity : ComponentActivity() {
                             }
                         })
                     }, content = {
-                        AppNavigation(navController)
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            AppNavigation(navController)
+                        }
                     })
                 }
             }

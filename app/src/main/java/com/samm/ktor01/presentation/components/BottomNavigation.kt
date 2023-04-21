@@ -24,12 +24,15 @@ fun BottomNavigation(
     onTabSelected: (Int) -> Unit
 ) {
     BottomAppBar(
-        modifier = Modifier.height(56.dp).fillMaxWidth(),
+        modifier = Modifier
+            .height(56.dp)
+            .fillMaxWidth(),
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.secondary
     ) {
 
         tabs.forEachIndexed { index, _ ->
+
             IconButton(
                 onClick = {
                     onTabSelected(index)

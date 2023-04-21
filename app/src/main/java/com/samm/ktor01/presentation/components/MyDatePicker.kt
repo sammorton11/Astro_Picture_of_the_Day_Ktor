@@ -35,7 +35,7 @@ fun MyDatePicker(viewModel: AstroViewModel) {
         { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
             mDate.value = "$dayOfMonth/${month + 1}/$year"
 
-            viewModel.getData("$year-${month + 1}-$dayOfMonth")
+            viewModel.getDataByDate("$year-${month + 1}-$dayOfMonth")
 
         }, mYear, mMonth, mDay
     )

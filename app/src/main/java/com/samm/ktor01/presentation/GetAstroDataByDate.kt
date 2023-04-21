@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,19 +13,24 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
+import com.samm.ktor01.domain.Apod
 import com.samm.ktor01.presentation.components.MyDatePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GetAstroDataByDate(viewModel: AstroViewModel) {
 
-    val data = viewModel.responseByFlowList.collectAsStateWithLifecycle()
+    val data = viewModel.responseByDateFlowList.collectAsStateWithLifecycle()
 
-    val date = data.value?.date
-    val explanation = data.value?.explanation
-    val hdurl = data.value?.hdUrl
-    val title = data.value?.title
-    val media_type = data.value?.mediaType
+    val isLoading = data.value?.isLoading ?: false
+    val error = data.value?.error ?: ""
+
+    val date = data.value?.data?.date
+    val explanation = data.value?.data?.explanation
+    val hdurl = data.value?.data?.hdUrl
+    val title = data.value?.data?.title
+    val media_type = data.value?.data?.mediaType
 
     LazyColumn(
         modifier = Modifier
@@ -37,21 +43,35 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
         data.value?.let {
             item {
                 Column(modifier = Modifier.padding(15.dp)) {
-                    title?.let { Text(text = it) }
-                    hdurl?.let {
-                        Card(
-                            shape = RoundedCornerShape(10.dp),
-                            modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
-                        ) {
-                            AsyncImage(
-                                model = it,
-                                contentDescription = "HD Image",
-                                modifier = Modifier.fillMaxSize()
-                            )
+
+                    GetState(
+                        data = data.value?.data,
+                        isLoading = isLoading,
+                        error = error
+                    ) {
+                        title?.let { Text(text = it) }
+                        hdurl?.let {
+                            Card(
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
+                            ) {
+                                SubcomposeAsyncImage(
+                                    model = it,
+                                    contentDescription = "HD Image",
+                                    loading = {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(130.dp)
+                                        )
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
                         }
+                        explanation?.let { Text(text = it) }
+                        date?.let { Text(text = it) }
                     }
-                    explanation?.let { Text(text = it) }
-                    date?.let { Text(text = it) }
                 }
             }
         }
@@ -60,6 +80,27 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
             Box(contentAlignment = Alignment.BottomCenter) {
                 MyDatePicker(viewModel = viewModel)
             }
+        }
+    }
+}
+
+@Composable
+fun GetState(
+    data: Any?,
+    isLoading: Boolean,
+    error: String?,
+    Content: @Composable () -> Unit,
+) {
+
+    when {
+        isLoading -> {
+            CircularProgressIndicator(modifier = Modifier.fillMaxSize())
+        }
+        data != null -> {
+            Content()
+        }
+        !error.isNullOrBlank() -> {
+            Text(text = error)
         }
     }
 }
