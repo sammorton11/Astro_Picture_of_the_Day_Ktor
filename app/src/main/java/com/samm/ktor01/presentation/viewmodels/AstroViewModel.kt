@@ -1,15 +1,14 @@
-package com.samm.ktor01.presentation
+package com.samm.ktor01.presentation.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
-import com.samm.ktor01.data.Repository
-import com.samm.ktor01.domain.Apod
+import com.samm.ktor01.data.repository.Repository
+import com.samm.ktor01.domain.models.Apod
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 class AstroViewModel: ViewModel() {
+
     data class DateSelectionScreenState(
         val isLoading: Boolean = false,
         val data: Apod? = null,
@@ -28,48 +27,55 @@ class AstroViewModel: ViewModel() {
         val error: String? = null
     )
 
-    val responseFlow_ = MutableStateFlow<Apod?>(null)
-    val responseFlow: StateFlow<Apod?> = responseFlow_
+    private val responseFlow_ = MutableStateFlow<SingleItemScreenState?>(null)
+    val responseFlow: StateFlow<SingleItemScreenState?> = responseFlow_
 
-    val responseFlowList_ = MutableStateFlow<ListViewScreenState?>(null)
+    private val responseFlowList_ = MutableStateFlow<ListViewScreenState?>(null)
     val responseFlowList: StateFlow<ListViewScreenState?> = responseFlowList_
 
-    val responseByDateFlowList_ = MutableStateFlow<DateSelectionScreenState?>(null)
+    private val responseByDateFlowList_ = MutableStateFlow<DateSelectionScreenState?>(null)
     val responseByDateFlowList: StateFlow<DateSelectionScreenState?> = responseByDateFlowList_
 
-    fun getSingleItemData() {
-        viewModelScope.launch {
-            kotlin.runCatching {
-                Repository.getData()
-            }.onSuccess {
-                responseFlow_.value = it
-            }.onFailure { throwable ->
-                responseFlow_.value = null
-                throwable.message?.let { it -> Log.d("Error:", it) }
-            }
-        }
-    }
-
-//    fun getDataListByCount(count: Int) {
-//        viewModelScope.launch {
-//            kotlin.runCatching {
-//                Repository.getDataList(count)
-//            }.onSuccess {
-//                responseFlowList_.value = it
-//            }.onFailure { throwable ->
-//                responseFlowList_.value = emptyList()
-//                throwable.message?.let { it -> Log.d("Error:", it) }
-//            }
-//        }
-//    }
-    fun getDataListByCount(count: Int) = flow {
-        val response = Repository.getDataList(count)
-        emit(Resource.Loading(isLoading = true))
+    private fun getSingleItemDataFlow() = flow {
+        val response = Repository.getData()
+        emit(Resource.Loading())
         emit(Resource.Success(response))
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
     }
 
+    private fun getDataListByCount(count: Int) = flow {
+        val response = Repository.getDataList(count)
+        emit(Resource.Loading())
+        emit(Resource.Success(response))
+    }.catch { e ->
+        emit(Resource.Error(e.message ?: "Unknown Error"))
+    }
+
+    private fun getDataDateFlow(date: String) = flow {
+        val response = Repository.getDataByDate(date)
+        emit(Resource.Loading())
+        emit(Resource.Success(response))
+    }.catch { e ->
+        emit(Resource.Error(e.message ?: "Unknown Error"))
+    }
+
+    fun getSingleItemData() {
+        getSingleItemDataFlow().onEach { response ->
+            when (response) {
+                is Resource.Loading -> {
+                    responseFlow_.value = SingleItemScreenState(isLoading = true)
+                }
+                is Resource.Success -> {
+                    responseFlow_.value = SingleItemScreenState(data = response.data)
+                }
+                is Resource.Error -> {
+                    responseFlow_.value = SingleItemScreenState(error = response.message)
+                }
+            }
+        }.launchIn(viewModelScope)
+    }
+ 
     fun getDataByList(count: Int) {
         getDataListByCount(count).onEach { response ->
             when (response) {
@@ -84,14 +90,6 @@ class AstroViewModel: ViewModel() {
                 }
             }
         }.launchIn(viewModelScope)
-    }
-
-    private fun getDataDateFlow(date: String) = flow {
-        val response = Repository.getDataByDate(date)
-        emit(Resource.Loading(isLoading = true))
-        emit(Resource.Success(response))
-    }.catch { e ->
-        emit(Resource.Error(e.message ?: "Unknown Error"))
     }
 
     fun getDataByDate(date: String) {

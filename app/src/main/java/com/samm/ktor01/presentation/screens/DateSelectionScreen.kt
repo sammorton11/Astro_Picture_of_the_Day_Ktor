@@ -10,12 +10,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
-import com.samm.ktor01.domain.Apod
 import com.samm.ktor01.presentation.components.MyDatePicker
+import com.samm.ktor01.presentation.components.Title
+import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +42,7 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         data.value?.let {
+
             item {
                 Column(modifier = Modifier.padding(15.dp)) {
 
@@ -49,7 +51,7 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
                         isLoading = isLoading,
                         error = error
                     ) {
-                        title?.let { Text(text = it) }
+                        title?.let { Title(text = it) }
                         hdurl?.let {
                             Card(
                                 shape = RoundedCornerShape(10.dp),
@@ -65,7 +67,8 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
                                                 .padding(130.dp)
                                         )
                                     },
-                                    modifier = Modifier.fillMaxSize()
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.FillBounds
                                 )
                             }
                         }
@@ -84,6 +87,8 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
     }
 }
 
+
+// Todo: Move this to its own file
 @Composable
 fun GetState(
     data: Any?,

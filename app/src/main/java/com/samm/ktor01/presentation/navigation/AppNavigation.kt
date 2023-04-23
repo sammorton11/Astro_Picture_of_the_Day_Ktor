@@ -5,9 +5,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.samm.ktor01.presentation.AstroViewModel
+import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 import com.samm.ktor01.presentation.GetAstroDataByDate
-import com.samm.ktor01.presentation.GetAstroDataList
+import com.samm.ktor01.presentation.screens.GetAstroDataList
 import com.samm.ktor01.presentation.GetSingleItemData
 
 @Composable

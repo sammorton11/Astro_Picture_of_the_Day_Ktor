@@ -2,7 +2,6 @@ package com.samm.ktor01
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -11,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.samm.ktor01.presentation.AstroViewModel
+import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 import com.samm.ktor01.presentation.components.BottomNavigation
 import com.samm.ktor01.presentation.navigation.AppNavigation
 import com.samm.ktor01.ui.theme.Ktor01Theme
@@ -36,7 +35,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
 
-            val currentDate = LocalDate.now()
+            val currentDate = LocalDate.of(2022, 1, 1)
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val formattedDate = currentDate.format(formatter)
 

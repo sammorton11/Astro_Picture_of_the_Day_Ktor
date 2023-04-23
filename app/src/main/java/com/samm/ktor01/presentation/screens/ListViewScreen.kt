@@ -1,6 +1,10 @@
-package com.samm.ktor01.presentation
+package com.samm.ktor01.presentation.screens
 
-import androidx.compose.foundation.layout.*
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -10,21 +14,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
+import com.samm.ktor01.presentation.components.Title
+import com.samm.ktor01.presentation.viewmodels.AstroViewModel
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetSingleItemData(viewModel: AstroViewModel) {
+fun GetAstroDataList(viewModel: AstroViewModel) {
 
-    val data = viewModel.responseFlow.collectAsStateWithLifecycle()
-    val date = data.value?.date
-    val explanation = data.value?.explanation
-    val hdurl = data.value?.hdUrl
-    val title = data.value?.title
-    val media_type = data.value?.mediaType // Todo: use this to determine if we need a media player or async image
+    val dataList = viewModel.responseFlowList.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier
@@ -34,11 +36,27 @@ fun GetSingleItemData(viewModel: AstroViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val sortedItemsByDate = dataList.value?.data?.sortedBy { it?.date }?.reversed()
+        val sortedItemsByName = dataList.value?.data?.sortedBy { it?.title?.first() }
 
-        data.value?.let {
-            item {
+        items(sortedItemsByDate?.size ?: 0) { index ->
+
+            val current = sortedItemsByDate?.get(index)
+
+            val copyright = current?.copyright
+            val date = current?.date
+            val explanation = current?.explanation
+            val hdurl = current?.hdUrl
+            val title = current?.title
+            val mediaType = current?.mediaType
+
+            if (mediaType == "video") Log.d("Video here:", dataList.toString())
+
+            Card(
+                modifier = Modifier.padding(15.dp)
+            ) {
                 Column(modifier = Modifier.padding(15.dp)) {
-                    title?.let { Text(text = it) }
+                    title?.let { Title(text = it) }
                     hdurl?.let {
                         Card(
                             shape = RoundedCornerShape(10.dp),
@@ -54,7 +72,8 @@ fun GetSingleItemData(viewModel: AstroViewModel) {
                                             .padding(130.dp)
                                     )
                                 },
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit
                             )
                         }
                     }

@@ -1,4 +1,4 @@
-package com.samm.ktor01.data
+package com.samm.ktor01.data.network
 
 import io.ktor.client.*
 import io.ktor.client.features.*
@@ -43,37 +43,3 @@ object KtorClient {
         }
     }
 }
-
-
-//object KtorClient {
-//
-//    private val json = Json {
-//        isLenient = true
-//        encodeDefaults = true
-//        ignoreUnknownKeys = true
-//    }
-//
-//    val httpClient = HttpClient {
-//
-//        install(JsonFeature) {
-//            serializer = KotlinxSerializer(json)
-//        }
-//
-//        install(Logging) {
-//            logger = object: Logger {
-//                override fun log(message: String) {
-//                    println(message)
-//                }
-//            }
-//        }
-//        install(HttpTimeout) {
-//            socketTimeoutMillis = 30000
-//            connectTimeoutMillis = 30000
-//            requestTimeoutMillis = 30000
-//        }
-//        defaultRequest {
-//            contentType(ContentType.Application.Json)
-//            accept(ContentType.Application.Json)
-//        }
-//    }
-//}
