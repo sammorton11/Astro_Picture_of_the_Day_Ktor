@@ -11,13 +11,14 @@ data class Apod(
     @SerialName("explanation")
     val explanation: String? = null,
     @SerialName("hdurl")
-    @JvmField val hdUrl: String? = null,
+    @JvmField
+    val hdUrl: String? = null,
     @SerialName("media_type")
     val mediaType: String? = null,
     @SerialName("service_version")
     val serviceVersion: String? = null,
     @SerialName("title")
     val title: String? = null,
-    @SerialName("url")
+    @SerialName("BASE_URL_LIST_ENDPOINT")
     val url: String? = null
 )

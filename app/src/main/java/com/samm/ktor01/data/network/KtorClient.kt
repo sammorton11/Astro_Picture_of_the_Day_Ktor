@@ -31,11 +31,13 @@ object KtorClient {
                     }
                 }
             }
+
             install(HttpTimeout) {
                 socketTimeoutMillis = 30000
                 connectTimeoutMillis = 30000
                 requestTimeoutMillis = 30000
             }
+
             defaultRequest {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)

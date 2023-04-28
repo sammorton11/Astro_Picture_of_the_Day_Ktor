@@ -1,4 +1,4 @@
-package com.samm.ktor01.presentation
+package com.samm.ktor01.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,13 +15,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.samm.ktor01.presentation.components.Title
-import com.samm.ktor01.presentation.viewmodels.AstroViewModel
+import com.samm.ktor01.presentation.viewmodels.SingleItemScreenState
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetSingleItemData(viewModel: AstroViewModel) {
+fun SingleItemViewScreen(state: StateFlow<SingleItemScreenState?>) {
 
-    val data = viewModel.responseFlow.collectAsStateWithLifecycle()
+    val data = state.collectAsStateWithLifecycle()
     val date = data.value?.data?.date
     val explanation = data.value?.data?.explanation
     val hdurl = data.value?.data?.hdUrl

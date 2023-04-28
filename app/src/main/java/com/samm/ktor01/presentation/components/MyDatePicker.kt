@@ -1,48 +1,57 @@
 package com.samm.ktor01.presentation.components
 
 import android.app.DatePickerDialog
-import android.widget.DatePicker
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import com.samm.ktor01.presentation.viewmodels.AstroViewModel
+import androidx.compose.ui.unit.dp
 import java.util.*
 
 @Composable
-fun MyDatePicker(viewModel: AstroViewModel) {
+fun MyDatePicker(getData: (String) -> Unit)  {
+    val context = LocalContext.current
 
-    val mContext = LocalContext.current
-    val mYear: Int
-    val mMonth: Int
-    val mDay: Int
+    val calendar = Calendar.getInstance()
+    val year = calendar.get(Calendar.YEAR)
+    val month = calendar.get(Calendar.MONTH)
+    val dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH)
 
-    val mCalendar = Calendar.getInstance()
+    calendar.time = Date()
+    val maxDateInMillis = calendar.timeInMillis
 
-    mYear = mCalendar.get(Calendar.YEAR)
-    mMonth = mCalendar.get(Calendar.MONTH)
-    mDay = mCalendar.get(Calendar.DAY_OF_MONTH)
 
-    mCalendar.time = Date()
+    val selectedDate = remember { mutableStateOf("") }
 
-    val mDate = remember { mutableStateOf("") }
+    val datePickerDialog = remember {
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                selectedDate.value = "$year-${month + 1}-$dayOfMonth"
+            },
+            year, month, dayOfMonth
+        ).apply {
+            datePicker.maxDate = maxDateInMillis
+            setOnDismissListener {
+                if (selectedDate.value.isNotBlank()) {
+                    getData(selectedDate.value)
+                }
+            }
+        }
+    }
 
-    val mDatePickerDialog = DatePickerDialog(
-        mContext,
-        { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-            mDate.value = "$dayOfMonth/${month + 1}/$year"
-
-            viewModel.getDataByDate("$year-${month + 1}-$dayOfMonth")
-
-        }, mYear, mMonth, mDay
-    )
-
-    Button(onClick = {
-        mDatePickerDialog.show()
-    }) {
+    // Button to open date picker
+    Button(
+        onClick = {
+            datePickerDialog.show()
+        },
+        modifier = Modifier.padding(bottom = 15.dp)
+    ) {
         Text(text = "Open Date Picker", color = Color.White)
     }
 }

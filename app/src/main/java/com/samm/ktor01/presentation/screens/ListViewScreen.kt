@@ -7,11 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -19,14 +16,18 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.samm.ktor01.presentation.components.Title
-import com.samm.ktor01.presentation.viewmodels.AstroViewModel
+import com.samm.ktor01.presentation.viewmodels.ListViewScreenState
+import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetAstroDataList(viewModel: AstroViewModel) {
+fun ListViewScreen(state: StateFlow<ListViewScreenState?>) {
 
-    val dataList = viewModel.responseFlowList.collectAsStateWithLifecycle()
+    val dataList = state.collectAsStateWithLifecycle()
+    var text by remember { mutableStateOf("") }
+
+    val sortedItemsByName = dataList.value?.data?.filter { it?.title?.contains(text) == true }
 
     LazyColumn(
         modifier = Modifier
@@ -36,12 +37,18 @@ fun GetAstroDataList(viewModel: AstroViewModel) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        val sortedItemsByDate = dataList.value?.data?.sortedBy { it?.date }?.reversed()
-        val sortedItemsByName = dataList.value?.data?.sortedBy { it?.title?.first() }
 
-        items(sortedItemsByDate?.size ?: 0) { index ->
+        item {
+            OutlinedTextField(value = text, onValueChange = {
+                text = it
+            })
+        }
 
-            val current = sortedItemsByDate?.get(index)
+        items(sortedItemsByName?.size ?: 0) { index ->
+
+            val current = sortedItemsByName?.get(index)
+
+            Log.d("Current", "${current?.mediaType}")
 
             val copyright = current?.copyright
             val date = current?.date
@@ -73,7 +80,7 @@ fun GetAstroDataList(viewModel: AstroViewModel) {
                                     )
                                 },
                                 modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Fit
+                                contentScale = ContentScale.FillBounds
                             )
                         }
                     }

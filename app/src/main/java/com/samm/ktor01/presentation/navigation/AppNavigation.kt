@@ -1,29 +1,31 @@
 package com.samm.ktor01.presentation.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.samm.ktor01.presentation.screens.DateSelectionScreen
+import com.samm.ktor01.presentation.screens.ListViewScreen
+import com.samm.ktor01.presentation.screens.SingleItemViewScreen
 import com.samm.ktor01.presentation.viewmodels.AstroViewModel
-import com.samm.ktor01.presentation.GetAstroDataByDate
-import com.samm.ktor01.presentation.screens.GetAstroDataList
-import com.samm.ktor01.presentation.GetSingleItemData
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
+fun AppNavigation(navController: NavHostController, viewModel: AstroViewModel) {
 
-    val viewModel: AstroViewModel = viewModel()
 
     NavHost(navController = navController, startDestination = "screen1") {
         composable("screen1") {
-            GetSingleItemData(viewModel = viewModel)
+            SingleItemViewScreen(state = viewModel.responseFlow)
         }
         composable("screen2") {
-            GetAstroDataByDate(viewModel = viewModel)
+            DateSelectionScreen(
+                state = viewModel.responseByDateFlowList,
+                getData = viewModel::getDataByDate
+            )
         }
         composable("screen3") {
-            GetAstroDataList(viewModel = viewModel)
+
+            ListViewScreen(state = viewModel.responseFlowList)
         }
     }
 }
