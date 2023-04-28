@@ -1,4 +1,4 @@
-package com.samm.ktor01.presentation
+package com.samm.ktor01.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,16 +16,17 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.samm.ktor01.presentation.components.MyDatePicker
 import com.samm.ktor01.presentation.components.Title
-import com.samm.ktor01.presentation.viewmodels.AstroViewModel
+import com.samm.ktor01.presentation.viewmodels.DateSelectionScreenState
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GetAstroDataByDate(viewModel: AstroViewModel) {
+fun DateSelectionScreen(
+    state: StateFlow<DateSelectionScreenState?>,
+    getData: (String) -> Unit,
+) {
 
-    val data = viewModel.responseByDateFlowList.collectAsStateWithLifecycle()
-
-    val isLoading = data.value?.isLoading ?: false
-    val error = data.value?.error ?: ""
+    val data = state.collectAsStateWithLifecycle()
 
     val date = data.value?.data?.date
     val explanation = data.value?.data?.explanation
@@ -44,68 +45,41 @@ fun GetAstroDataByDate(viewModel: AstroViewModel) {
         data.value?.let {
 
             item {
-                Column(modifier = Modifier.padding(15.dp)) {
+                Column(
+                    modifier = Modifier.padding(15.dp)
+                ) {
 
-                    GetState(
-                        data = data.value?.data,
-                        isLoading = isLoading,
-                        error = error
-                    ) {
-                        title?.let { Title(text = it) }
-                        hdurl?.let {
-                            Card(
-                                shape = RoundedCornerShape(10.dp),
-                                modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
-                            ) {
-                                SubcomposeAsyncImage(
-                                    model = it,
-                                    contentDescription = "HD Image",
-                                    loading = {
-                                        CircularProgressIndicator(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .padding(130.dp)
-                                        )
-                                    },
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.FillBounds
-                                )
-                            }
+                    title?.let { Title(text = it) }
+                    hdurl?.let {
+                        Card(
+                            shape = RoundedCornerShape(10.dp),
+                            modifier = Modifier.padding(top = 15.dp, bottom = 15.dp)
+                        ) {
+                            SubcomposeAsyncImage(
+                                model = it,
+                                contentDescription = "HD Image",
+                                loading = {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(130.dp)
+                                    )
+                                },
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.FillBounds
+                            )
                         }
-                        explanation?.let { Text(text = it) }
-                        date?.let { Text(text = it) }
                     }
+                    explanation?.let { Text(text = it) }
+                    date?.let { Text(text = it) }
                 }
             }
         }
 
         item {
             Box(contentAlignment = Alignment.BottomCenter) {
-                MyDatePicker(viewModel = viewModel)
+                MyDatePicker(getData = getData)
             }
-        }
-    }
-}
-
-
-// Todo: Move this to its own file
-@Composable
-fun GetState(
-    data: Any?,
-    isLoading: Boolean,
-    error: String?,
-    Content: @Composable () -> Unit,
-) {
-
-    when {
-        isLoading -> {
-            CircularProgressIndicator(modifier = Modifier.fillMaxSize())
-        }
-        data != null -> {
-            Content()
-        }
-        !error.isNullOrBlank() -> {
-            Text(text = error)
         }
     }
 }

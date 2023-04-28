@@ -3,29 +3,13 @@ package com.samm.ktor01.presentation.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
-import com.samm.ktor01.data.repository.Repository
+import com.samm.ktor01.core.UIEvent
 import com.samm.ktor01.domain.models.Apod
+import com.samm.ktor01.domain.models.Repository
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
-class AstroViewModel: ViewModel() {
-
-    data class DateSelectionScreenState(
-        val isLoading: Boolean = false,
-        val data: Apod? = null,
-        val error: String? = null
-    )
-
-    data class ListViewScreenState(
-        val isLoading: Boolean = false,
-        val data: List<Apod?> = emptyList(),
-        val error: String? = null
-    )
-
-    data class SingleItemScreenState(
-        val isLoading: Boolean = false,
-        val data: Apod? = null,
-        val error: String? = null
-    )
+class AstroViewModel(private val repository: Repository) : ViewModel() {
 
     private val responseFlow_ = MutableStateFlow<SingleItemScreenState?>(null)
     val responseFlow: StateFlow<SingleItemScreenState?> = responseFlow_
@@ -37,15 +21,15 @@ class AstroViewModel: ViewModel() {
     val responseByDateFlowList: StateFlow<DateSelectionScreenState?> = responseByDateFlowList_
 
     private fun getSingleItemDataFlow() = flow {
-        val response = Repository.getData()
+        val response = repository.getData()
         emit(Resource.Loading())
         emit(Resource.Success(response))
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
     }
 
-    private fun getDataListByCount(count: Int) = flow {
-        val response = Repository.getDataList(count)
+    private fun getDataListByCountFlow(count: Int) = flow {
+        val response = repository.getDataList(count)
         emit(Resource.Loading())
         emit(Resource.Success(response))
     }.catch { e ->
@@ -53,14 +37,14 @@ class AstroViewModel: ViewModel() {
     }
 
     private fun getDataDateFlow(date: String) = flow {
-        val response = Repository.getDataByDate(date)
+        val response = repository.getDataByDate(date)
         emit(Resource.Loading())
         emit(Resource.Success(response))
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
     }
 
-    fun getSingleItemData() {
+    private fun getSingleItemData() {
         getSingleItemDataFlow().onEach { response ->
             when (response) {
                 is Resource.Loading -> {
@@ -75,9 +59,9 @@ class AstroViewModel: ViewModel() {
             }
         }.launchIn(viewModelScope)
     }
- 
-    fun getDataByList(count: Int) {
-        getDataListByCount(count).onEach { response ->
+
+    private fun getDataByList(count: Int) {
+        getDataListByCountFlow(count).onEach { response ->
             when (response) {
                 is Resource.Loading -> {
                     responseFlowList_.value = ListViewScreenState(isLoading = true)
@@ -102,9 +86,41 @@ class AstroViewModel: ViewModel() {
                     responseByDateFlowList_.value = DateSelectionScreenState(data = response.data)
                 }
                 is Resource.Error -> {
-                   responseByDateFlowList_.value = DateSelectionScreenState(error = response.message)
+                    responseByDateFlowList_.value =
+                        DateSelectionScreenState(error = response.message)
                 }
             }
         }.launchIn(viewModelScope)
     }
+
+
+    private fun handleEvent(event: UIEvent) {
+        when (event) {
+            is UIEvent.GetSingleItemData -> getSingleItemData()
+            is UIEvent.GetListItemsData -> getDataByList(event.count)
+            is UIEvent.GetDataByDate -> getDataByDate(event.date)
+        }
+    }
+
+    fun sendEvent(event: UIEvent) = viewModelScope.launch {
+        handleEvent(event)
+    }
 }
+
+data class DateSelectionScreenState(
+    val isLoading: Boolean = false,
+    val data: Apod? = null,
+    val error: String? = null
+)
+
+data class ListViewScreenState(
+    val isLoading: Boolean = false,
+    val data: List<Apod?> = emptyList(),
+    val error: String? = null
+)
+
+data class SingleItemScreenState(
+    val isLoading: Boolean = false,
+    val data: Apod? = null,
+    val error: String? = null
+)
