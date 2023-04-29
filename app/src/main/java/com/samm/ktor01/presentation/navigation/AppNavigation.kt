@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.samm.ktor01.presentation.screens.DateSelectionScreen
+import com.samm.ktor01.presentation.screens.FavoriteScreen
 import com.samm.ktor01.presentation.screens.ListViewScreen
 import com.samm.ktor01.presentation.screens.SingleItemViewScreen
 import com.samm.ktor01.presentation.viewmodels.AstroViewModel
@@ -24,8 +25,10 @@ fun AppNavigation(navController: NavHostController, viewModel: AstroViewModel) {
             )
         }
         composable("screen3") {
-
-            ListViewScreen(state = viewModel.responseFlowList)
+            ListViewScreen(state = viewModel.responseFlowList, insert = viewModel::insertFavorite)
+        }
+        composable("screen4") {
+            FavoriteScreen(viewModel = viewModel)
         }
     }
 }
