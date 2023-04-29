@@ -9,7 +9,8 @@ import com.samm.ktor01.domain.models.Apod
 import com.samm.ktor01.domain.models.Repository
 import io.ktor.client.request.*
 
-object RepositoryImpl: Repository {
+class RepositoryImpl : Repository {
+
 
     override suspend fun getData(): Apod {
         return KtorClient.createHttpClient().use { ktor ->

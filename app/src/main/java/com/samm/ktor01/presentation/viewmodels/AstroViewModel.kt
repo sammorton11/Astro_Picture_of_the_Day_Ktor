@@ -1,29 +1,35 @@
 package com.samm.ktor01.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
 import com.samm.ktor01.core.UIEvent
+import com.samm.ktor01.data.FavoritesDao
 import com.samm.ktor01.domain.models.Apod
 import com.samm.ktor01.domain.models.Repository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class AstroViewModel(private val repository: Repository) : ViewModel() {
+class AstroViewModel(private val repository: Repository, private val dao: FavoritesDao) : ViewModel() {
 
     private val responseFlow_ = MutableStateFlow<SingleItemScreenState?>(null)
-    val responseFlow: StateFlow<SingleItemScreenState?> = responseFlow_
+    val responseFlow = responseFlow_.asStateFlow()
 
     private val responseFlowList_ = MutableStateFlow<ListViewScreenState?>(null)
-    val responseFlowList: StateFlow<ListViewScreenState?> = responseFlowList_
+    val responseFlowList = responseFlowList_.asStateFlow()
 
-    private val responseByDateFlowList_ = MutableStateFlow<DateSelectionScreenState?>(null)
-    val responseByDateFlowList: StateFlow<DateSelectionScreenState?> = responseByDateFlowList_
+    private var responseByDateFlowList_ = MutableStateFlow<DateSelectionScreenState?>(null)
+    val responseByDateFlowList = responseByDateFlowList_.asStateFlow()
+
 
     private fun getSingleItemDataFlow() = flow {
         val response = repository.getData()
         emit(Resource.Loading())
+        Log.d("AstroViewModel", "getSingleItemDataFlow: ${response.date}")
         emit(Resource.Success(response))
+
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
     }
@@ -105,8 +111,19 @@ class AstroViewModel(private val repository: Repository) : ViewModel() {
     fun sendEvent(event: UIEvent) = viewModelScope.launch {
         handleEvent(event)
     }
+
+    // Database
+    fun insertFavorite(apod: Apod) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.insertFavorite(apod)
+        }
+    }
+
+    fun getAllFavorites() = dao.getAllFavorites()
 }
 
+
+// State
 data class DateSelectionScreenState(
     val isLoading: Boolean = false,
     val data: Apod? = null,

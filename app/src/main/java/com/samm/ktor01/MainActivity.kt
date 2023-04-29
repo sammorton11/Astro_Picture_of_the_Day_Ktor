@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
             viewModel.sendEvent(UIEvent.GetListItemsData(100))
             viewModel.sendEvent(UIEvent.GetDataByDate(formattedDate))
 
+
             Ktor01Theme {
                 // A surface container using the 'background' color from the theme
                 Surface(
@@ -72,6 +73,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
                                 0 -> { navController.navigate("screen1") }
                                 1 -> { navController.navigate("screen2") }
                                 2 -> { navController.navigate("screen3") }
+                                3 -> { navController.navigate("screen4") }
                             }
                         })
                     }, content = {

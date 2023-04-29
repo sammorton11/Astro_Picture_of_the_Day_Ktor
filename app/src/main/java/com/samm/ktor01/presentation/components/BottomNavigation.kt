@@ -19,7 +19,8 @@ fun BottomNavigation(
     tabs: List<TabItem> = listOf(
         TabItem(R.drawable.baseline_home_24, 0),
         TabItem(R.drawable.baseline_date_range_24, 1),
-        TabItem(R.drawable.baseline_library_books_24, 2)
+        TabItem(R.drawable.baseline_library_books_24, 2),
+        TabItem(R.drawable.baseline_library_books_24, 3)
     ),
     onTabSelected: (Int) -> Unit
 ) {

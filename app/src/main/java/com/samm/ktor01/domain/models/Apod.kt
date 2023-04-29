@@ -1,9 +1,14 @@
 package com.samm.ktor01.domain.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+@Entity
 @Serializable
 data class Apod(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     @SerialName("copyright")
     val copyright: String? = null,
     @SerialName("date")
