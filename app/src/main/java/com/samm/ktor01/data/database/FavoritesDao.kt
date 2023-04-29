@@ -1,9 +1,6 @@
-package com.samm.ktor01.data
+package com.samm.ktor01.data.database
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.samm.ktor01.domain.models.Apod
 import kotlinx.coroutines.flow.Flow
 
@@ -13,12 +10,12 @@ interface FavoritesDao {
     @Query("SELECT * FROM apod")
     fun getAllFavorites(): Flow<List<Apod>>
 
-    @Insert
-    fun insertFavorite(apod: Apod)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertFavorite(apod: Apod)
 
     @Delete
-    fun delete(apod: Apod)
+    suspend fun delete(apod: Apod)
 
     @Query("DELETE FROM apod")
-    fun deleteAll()
+    suspend fun deleteAll()
 }

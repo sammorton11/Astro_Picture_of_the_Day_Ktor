@@ -1,4 +1,4 @@
-package com.samm.ktor01.data
+package com.samm.ktor01.data.database
 
 import android.content.Context
 import androidx.room.Database

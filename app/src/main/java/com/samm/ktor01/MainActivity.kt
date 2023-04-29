@@ -26,11 +26,11 @@ import java.util.*
 
 /**
  *      Todo:
+ *          - Favorites Icon button does not hold state
+ *              - if an item is favorited, the icon will not save the icons changed state
+ *              - How do I prevent duplicated saved items?
+ *          - List is not loading in List View Screen.
  *          - Conditional for media types - image, and video - Gif?
- *          - Clean up
- *          - Component alignments and isolations
- *          - Integration tests
- *          - Unit tests
  */
 
 class MainActivity : ComponentActivity(), KoinComponent {
@@ -54,7 +54,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
             val formattedDate = currentDate.format(formatter)
 
             viewModel.sendEvent(UIEvent.GetSingleItemData)
-            viewModel.sendEvent(UIEvent.GetListItemsData(100))
+            viewModel.sendEvent(UIEvent.GetListItemsData(10))
             viewModel.sendEvent(UIEvent.GetDataByDate(formattedDate))
 
 
@@ -72,8 +72,7 @@ class MainActivity : ComponentActivity(), KoinComponent {
                             when (it) {
                                 0 -> { navController.navigate("screen1") }
                                 1 -> { navController.navigate("screen2") }
-                                2 -> { navController.navigate("screen3") }
-                                3 -> { navController.navigate("screen4") }
+                                2 -> { navController.navigate("screen4") }
                             }
                         })
                     }, content = {
