@@ -1,10 +1,11 @@
 package com.samm.ktor01.domain.models
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-@Entity
+@Entity(tableName = "apod", indices = [Index(value = ["date"], unique = true)])
 @Serializable
 data class Apod(
     @PrimaryKey(autoGenerate = true)

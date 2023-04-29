@@ -1,4 +1,6 @@
-package com.samm.ktor01.domain.models
+package com.samm.ktor01.domain.repository
+
+import com.samm.ktor01.domain.models.Apod
 
 interface Repository {
     suspend fun getData(): Apod

@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.samm.ktor01.domain.models.Apod
 import com.samm.ktor01.presentation.components.MyDatePicker
 import com.samm.ktor01.presentation.components.ResponseData
 import com.samm.ktor01.presentation.viewmodels.DateSelectionScreenState
@@ -19,6 +22,8 @@ import kotlinx.coroutines.flow.StateFlow
 fun DateSelectionScreen(
     state: StateFlow<DateSelectionScreenState?>,
     getData: (String) -> Unit,
+    insert: (Apod) -> Unit,
+    unFavorite: (Apod) -> Unit,
 ) {
 
     val data = state.collectAsStateWithLifecycle()
@@ -44,8 +49,22 @@ fun DateSelectionScreen(
                     title = title,
                     date = date,
                     explanation = explanation,
-                    hdurl = hdurl
+                    hdurl = hdurl,
+                    unFavorite = unFavorite,
+                    apod = data.value?.data,
+                    favorite = insert,
+                    onFavoriteScreen = false
                 )
+            }
+
+            item {
+                OutlinedButton(
+                    onClick = {
+                        data.value?.data?.let { insert(it) }
+                    }
+                ) {
+                    Text(text = "Save to Favorites")
+                }
             }
         }
 

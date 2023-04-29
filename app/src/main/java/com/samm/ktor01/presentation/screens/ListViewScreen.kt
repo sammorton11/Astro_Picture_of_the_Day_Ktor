@@ -13,14 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.samm.ktor01.domain.models.Apod
-import com.samm.ktor01.presentation.components.ResponseData
 import com.samm.ktor01.presentation.viewmodels.ListViewScreenState
 import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ListViewScreen(state: StateFlow<ListViewScreenState?>, insert: (Apod) -> Unit) {
+fun ListViewScreen(
+    state: StateFlow<ListViewScreenState?>,
+    insert: (Apod) -> Unit
+) {
 
     val dataList = state.collectAsStateWithLifecycle()
     var text by remember { mutableStateOf("") }
@@ -31,9 +33,7 @@ fun ListViewScreen(state: StateFlow<ListViewScreenState?>, insert: (Apod) -> Uni
         dataList.value?.isLoading == true -> {
             CircularProgressIndicator(
                 modifier = Modifier
-                    .padding(130.dp)
             )
-            Text(text = "Loading...")
         }
         dataList.value?.data?.isNotEmpty() == true -> {
             LazyColumn(
@@ -73,12 +73,12 @@ fun ListViewScreen(state: StateFlow<ListViewScreenState?>, insert: (Apod) -> Uni
                     Card(
                         modifier = Modifier.padding(15.dp)
                     ) {
-                        ResponseData(
-                            title = title,
-                            date = date,
-                            explanation = explanation,
-                            hdurl = hdurl
-                        )
+//                        ResponseData(
+//                            title = title,
+//                            date = date,
+//                            explanation = explanation,
+//                            hdurl = hdurl
+//                        )
                     }
 
                     OutlinedButton(onClick = {

@@ -12,15 +12,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.samm.ktor01.R
 
-data class TabItem(val titleResId: Int, val index: Int)
+data class TabItem(
+    val titleResId: Int,
+    val index: Int,
+)
 
 @Composable
 fun BottomNavigation(
     tabs: List<TabItem> = listOf(
         TabItem(R.drawable.baseline_home_24, 0),
         TabItem(R.drawable.baseline_date_range_24, 1),
-        TabItem(R.drawable.baseline_library_books_24, 2),
-        TabItem(R.drawable.baseline_library_books_24, 3)
+        TabItem(R.drawable.baseline_favorite_border_24, 2)
     ),
     onTabSelected: (Int) -> Unit
 ) {

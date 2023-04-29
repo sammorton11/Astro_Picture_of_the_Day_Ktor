@@ -5,9 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
 import com.samm.ktor01.core.UIEvent
-import com.samm.ktor01.data.FavoritesDao
+import com.samm.ktor01.data.database.FavoritesDao
 import com.samm.ktor01.domain.models.Apod
-import com.samm.ktor01.domain.models.Repository
+import com.samm.ktor01.domain.repository.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -25,8 +25,8 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
 
 
     private fun getSingleItemDataFlow() = flow {
-        val response = repository.getData()
         emit(Resource.Loading())
+        val response = repository.getData()
         Log.d("AstroViewModel", "getSingleItemDataFlow: ${response.date}")
         emit(Resource.Success(response))
 
@@ -35,16 +35,17 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
     }
 
     private fun getDataListByCountFlow(count: Int) = flow {
-        val response = repository.getDataList(count)
         emit(Resource.Loading())
+        val response = repository.getDataList(count)
+        Log.d("response", response.toString())
         emit(Resource.Success(response))
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
     }
 
     private fun getDataDateFlow(date: String) = flow {
-        val response = repository.getDataByDate(date)
         emit(Resource.Loading())
+        val response = repository.getDataByDate(date)
         emit(Resource.Success(response))
     }.catch { e ->
         emit(Resource.Error(e.message ?: "Unknown Error"))
@@ -67,19 +68,24 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
     }
 
     private fun getDataByList(count: Int) {
-        getDataListByCountFlow(count).onEach { response ->
-            when (response) {
-                is Resource.Loading -> {
-                    responseFlowList_.value = ListViewScreenState(isLoading = true)
-                }
-                is Resource.Success -> {
-                    responseFlowList_.value = ListViewScreenState(data = response.data)
-                }
-                is Resource.Error -> {
-                    responseFlowList_.value = ListViewScreenState(error = response.message)
+        viewModelScope.launch(Dispatchers.Default) {
+            getDataListByCountFlow(count).onEach { response ->
+                when (response) {
+                    is Resource.Loading -> {
+                        responseFlowList_.value = ListViewScreenState(isLoading = true)
+                        Log.d("responseFlowList_", responseFlowList_.value.toString())
+                    }
+                    is Resource.Success -> {
+                        responseFlowList_.value = ListViewScreenState(data = response.data)
+                        Log.d("responseFlowList_", responseFlowList_.value.toString())
+                    }
+                    is Resource.Error -> {
+                        responseFlowList_.value = ListViewScreenState(error = response.message)
+                        Log.d("responseFlowList_", responseFlowList_.value.toString())
+                    }
                 }
             }
-        }.launchIn(viewModelScope)
+        }
     }
 
     fun getDataByDate(date: String) {
@@ -116,6 +122,12 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
     fun insertFavorite(apod: Apod) {
         viewModelScope.launch(Dispatchers.IO) {
             dao.insertFavorite(apod)
+        }
+    }
+
+    fun deleteFavorite(apod: Apod) {
+        viewModelScope.launch(Dispatchers.IO) {
+            dao.delete(apod)
         }
     }
 

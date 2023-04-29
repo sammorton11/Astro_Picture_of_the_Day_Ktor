@@ -11,24 +11,44 @@ import com.samm.ktor01.presentation.screens.SingleItemViewScreen
 import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 
 @Composable
-fun AppNavigation(navController: NavHostController, viewModel: AstroViewModel) {
+fun AppNavigation(
+    navController: NavHostController,
+    viewModel: AstroViewModel,
+) {
 
-
-    NavHost(navController = navController, startDestination = "screen1") {
+    NavHost(
+        navController = navController,
+        startDestination = "screen1"
+    ) {
         composable("screen1") {
-            SingleItemViewScreen(state = viewModel.responseFlow)
+
+            SingleItemViewScreen(
+                state = viewModel.responseFlow,
+                insert = viewModel::insertFavorite,
+                favorites = viewModel.getAllFavorites(),
+                unFavorite = viewModel::deleteFavorite
+            )
         }
         composable("screen2") {
             DateSelectionScreen(
                 state = viewModel.responseByDateFlowList,
-                getData = viewModel::getDataByDate
+                getData = viewModel::getDataByDate,
+                insert = viewModel::insertFavorite,
+                unFavorite = viewModel::deleteFavorite
             )
         }
         composable("screen3") {
-            ListViewScreen(state = viewModel.responseFlowList, insert = viewModel::insertFavorite)
+            ListViewScreen(
+                state = viewModel.responseFlowList,
+                insert = viewModel::insertFavorite
+            )
         }
         composable("screen4") {
-            FavoriteScreen(viewModel = viewModel)
+            FavoriteScreen(
+                viewModel = viewModel,
+                unFavorite = viewModel::deleteFavorite,
+                insert = viewModel::insertFavorite
+            )
         }
     }
 }

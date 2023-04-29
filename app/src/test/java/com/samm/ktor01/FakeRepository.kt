@@ -1,7 +1,7 @@
 package com.samm.ktor01
 
 import com.samm.ktor01.domain.models.Apod
-import com.samm.ktor01.domain.models.Repository
+import com.samm.ktor01.domain.repository.Repository
 
 object FakeRepository: Repository {
 
