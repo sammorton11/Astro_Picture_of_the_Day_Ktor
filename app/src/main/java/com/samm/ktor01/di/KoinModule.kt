@@ -9,11 +9,11 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val appModule = module {
-    single<Repository> { RepositoryImpl() }
+    single<Repository> { RepositoryImpl(get()) }
     single { get<MyDatabase>().myDao() }
     single { MyDatabase.getDatabase(androidContext()) }
 }
 
 val viewModelModule = module {
-    viewModel { AstroViewModel(get(), get()) }
+    viewModel { AstroViewModel(get()) }
 }

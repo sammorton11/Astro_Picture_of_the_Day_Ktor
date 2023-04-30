@@ -2,6 +2,7 @@ package com.samm.ktor01.presentation.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
 import com.samm.ktor01.core.UIEvent
@@ -12,7 +13,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class AstroViewModel(private val repository: Repository, private val dao: FavoritesDao) : ViewModel() {
+class AstroViewModel(
+    private val repository: Repository
+) : ViewModel() {
 
     private val responseFlow_ = MutableStateFlow<SingleItemScreenState?>(null)
     val responseFlow = responseFlow_.asStateFlow()
@@ -22,6 +25,9 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
 
     private var responseByDateFlowList_ = MutableStateFlow<DateSelectionScreenState?>(null)
     val responseByDateFlowList = responseByDateFlowList_.asStateFlow()
+
+    private val _favorites = MutableStateFlow<List<Apod>>(emptyList())
+    val favorites: StateFlow<List<Apod>> = _favorites
 
 
     private fun getSingleItemDataFlow() = flow {
@@ -68,7 +74,7 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
     }
 
     private fun getDataByList(count: Int) {
-        viewModelScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.IO) {
             getDataListByCountFlow(count).onEach { response ->
                 when (response) {
                     is Resource.Loading -> {
@@ -111,6 +117,7 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
             is UIEvent.GetSingleItemData -> getSingleItemData()
             is UIEvent.GetListItemsData -> getDataByList(event.count)
             is UIEvent.GetDataByDate -> getDataByDate(event.date)
+            is UIEvent.GetFavorites -> getAllFavorites()
         }
     }
 
@@ -121,17 +128,24 @@ class AstroViewModel(private val repository: Repository, private val dao: Favori
     // Database
     fun insertFavorite(apod: Apod) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.insertFavorite(apod)
+            repository.insertFavorite(apod)
         }
     }
 
     fun deleteFavorite(apod: Apod) {
         viewModelScope.launch(Dispatchers.IO) {
-            dao.delete(apod)
+            repository.deleteFavorite(apod)
         }
     }
 
-    fun getAllFavorites() = dao.getAllFavorites()
+//    fun getAllFavorites() = repository.getAllFavorites()
+    fun getAllFavorites() {
+        viewModelScope.launch {
+            repository.getAllFavorites().collect { favorites ->
+                _favorites.value = favorites
+            }
+        }
+    }
 }
 
 

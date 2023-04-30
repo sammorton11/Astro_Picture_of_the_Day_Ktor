@@ -21,7 +21,6 @@ fun ResponseData(
     date: String?,
     explanation: String?,
     hdurl: String?,
-    state: State<List<Apod>>? = null,
     favorite: (Apod) -> Unit,
     unFavorite: (Apod) -> Unit,
     apod: Apod?,

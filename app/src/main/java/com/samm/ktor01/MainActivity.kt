@@ -8,14 +8,18 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.coroutineScope
 import androidx.navigation.compose.rememberNavController
 import com.samm.ktor01.core.UIEvent
 import com.samm.ktor01.di.appModule
 import com.samm.ktor01.di.viewModelModule
+import com.samm.ktor01.domain.models.Apod
 import com.samm.ktor01.presentation.components.BottomNavigation
 import com.samm.ktor01.presentation.navigation.AppNavigation
 import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 import com.samm.ktor01.ui.theme.Ktor01Theme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.component.KoinComponent
@@ -52,11 +56,11 @@ class MainActivity : ComponentActivity(), KoinComponent {
             val currentDate = LocalDate.of(2022, 1, 1)
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val formattedDate = currentDate.format(formatter)
+            val favorites = viewModel.favorites.collectAsState().value
 
             viewModel.sendEvent(UIEvent.GetSingleItemData)
-            viewModel.sendEvent(UIEvent.GetListItemsData(10))
             viewModel.sendEvent(UIEvent.GetDataByDate(formattedDate))
-
+            viewModel.sendEvent(UIEvent.GetFavorites)
 
             Ktor01Theme {
                 // A surface container using the 'background' color from the theme
@@ -76,9 +80,11 @@ class MainActivity : ComponentActivity(), KoinComponent {
                             }
                         })
                     }, content = {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            AppNavigation(navController, viewModel)
-                        }
+                        AppNavigation(
+                            navController = navController,
+                            viewModel = viewModel,
+                            listOfFavorites = favorites
+                        )
                     })
                 }
             }
