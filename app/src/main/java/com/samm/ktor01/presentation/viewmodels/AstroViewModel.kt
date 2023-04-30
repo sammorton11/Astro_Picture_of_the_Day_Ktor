@@ -2,11 +2,9 @@ package com.samm.ktor01.presentation.viewmodels
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.samm.ktor01.core.Resource
 import com.samm.ktor01.core.UIEvent
-import com.samm.ktor01.data.database.FavoritesDao
 import com.samm.ktor01.domain.models.Apod
 import com.samm.ktor01.domain.repository.Repository
 import kotlinx.coroutines.Dispatchers
@@ -74,24 +72,22 @@ class AstroViewModel(
     }
 
     private fun getDataByList(count: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            getDataListByCountFlow(count).onEach { response ->
-                when (response) {
-                    is Resource.Loading -> {
-                        responseFlowList_.value = ListViewScreenState(isLoading = true)
-                        Log.d("responseFlowList_", responseFlowList_.value.toString())
-                    }
-                    is Resource.Success -> {
-                        responseFlowList_.value = ListViewScreenState(data = response.data)
-                        Log.d("responseFlowList_", responseFlowList_.value.toString())
-                    }
-                    is Resource.Error -> {
-                        responseFlowList_.value = ListViewScreenState(error = response.message)
-                        Log.d("responseFlowList_", responseFlowList_.value.toString())
-                    }
+        getDataListByCountFlow(count).onEach { response ->
+            when (response) {
+                is Resource.Loading -> {
+                    responseFlowList_.value = ListViewScreenState(isLoading = true)
+                    Log.d("responseFlowList_", responseFlowList_.value.toString())
+                }
+                is Resource.Success -> {
+                    responseFlowList_.value = ListViewScreenState(data = response.data)
+                    Log.d("responseFlowList_", responseFlowList_.value.toString())
+                }
+                is Resource.Error -> {
+                    responseFlowList_.value = ListViewScreenState(error = response.message)
+                    Log.d("responseFlowList_", responseFlowList_.value.toString())
                 }
             }
-        }
+        }.launchIn(viewModelScope)
     }
 
     fun getDataByDate(date: String) {
@@ -138,15 +134,14 @@ class AstroViewModel(
         }
     }
 
-//    fun getAllFavorites() = repository.getAllFavorites()
-    fun getAllFavorites() {
-        viewModelScope.launch {
-            repository.getAllFavorites().collect { favorites ->
+    private fun getAllFavorites() {
+            viewModelScope.launch {
+                repository.getAllFavorites().collect { favorites ->
                 _favorites.value = favorites
+                }
             }
         }
     }
-}
 
 
 // State
