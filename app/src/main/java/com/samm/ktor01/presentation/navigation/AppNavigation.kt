@@ -1,6 +1,7 @@
 package com.samm.ktor01.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,28 +15,15 @@ import com.samm.ktor01.presentation.viewmodels.AstroViewModel
 
 @Composable
 fun AppNavigation(
-    listOfFavorites: List<Apod>,
     navController: NavHostController,
     viewModel: AstroViewModel,
 ) {
-
-    val apod = Apod(
-        copyright = "copyright",
-        date = "date",
-        explanation= "explanation",
-        hdUrl = "https://apod.nasa.gov/apod/image/2006/catseye2_not_2048.jpg",
-        mediaType = "image",
-        serviceVersion = "v1",
-        title = "Title",
-        url = "https://apod.nasa.gov/apod/image/2006/catseye2_not_2048.jpg"
-    )
 
     NavHost(
         navController = navController,
         startDestination = "screen1"
     ) {
         composable("screen1") {
-
             val state = viewModel.responseFlow.collectAsStateWithLifecycle()
 
             SingleItemViewScreen(
@@ -45,22 +33,29 @@ fun AppNavigation(
             )
         }
         composable("screen2") {
+            val state = viewModel.responseByDateFlowList.collectAsStateWithLifecycle()
+
             DateSelectionScreen(
-                state = viewModel.responseByDateFlowList,
+                state = state.value,
                 getData = viewModel::getDataByDate,
                 insert = viewModel::insertFavorite,
                 unFavorite = viewModel::deleteFavorite
             )
         }
         composable("screen3") {
+            val state = viewModel.responseFlowList.collectAsStateWithLifecycle()
+
             ListViewScreen(
-                state = viewModel.responseFlowList,
-                insert = viewModel::insertFavorite
+                state = state.value,
+                insert = viewModel::insertFavorite,
+                unFavorite = viewModel::deleteFavorite
             )
         }
         composable("screen4") {
+           val state = viewModel.favorites.collectAsState()
+
             FavoriteScreen(
-                favoritesList = listOfFavorites,
+                favoritesList = state.value,
                 unFavorite = viewModel::deleteFavorite,
                 insert = viewModel::insertFavorite
             )

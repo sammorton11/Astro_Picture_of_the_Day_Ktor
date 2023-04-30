@@ -11,31 +11,29 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.samm.ktor01.domain.models.Apod
+import com.samm.ktor01.presentation.components.ResponseData
 import com.samm.ktor01.presentation.viewmodels.ListViewScreenState
-import kotlinx.coroutines.flow.StateFlow
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListViewScreen(
-    state: StateFlow<ListViewScreenState?>,
-    insert: (Apod) -> Unit
+    state: ListViewScreenState?,
+    insert: (Apod) -> Unit,
+    unFavorite: (Apod) -> Unit
 ) {
-
-    val dataList = state.collectAsStateWithLifecycle()
-    var text by remember { mutableStateOf("") }
-
-    val sortedItemsByName = dataList.value?.data?.filter { it?.title?.contains(text) == true }
     
+    var text by remember { mutableStateOf("") }
+    val sortedItemsByName = state?.data?.filter { it?.title?.contains(text) == true }
+
     when {
-        dataList.value?.isLoading == true -> {
+        state?.isLoading == true -> {
             CircularProgressIndicator(
                 modifier = Modifier
             )
         }
-        dataList.value?.data?.isNotEmpty() == true -> {
+        state?.data?.isNotEmpty() == true -> {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -52,9 +50,14 @@ fun ListViewScreen(
                         },
                         maxLines = 1,
                         placeholder = { Text("Search Results...") },
-                        trailingIcon = { IconButton(onClick = { text = "" }) {
-                            Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear Search Field")
-                        }}
+                        trailingIcon = {
+                            IconButton(onClick = { text = "" }) {
+                                Icon(
+                                    imageVector = Icons.Default.Clear,
+                                    contentDescription = "Clear Search Field"
+                                )
+                            }
+                        }
                     )
                 }
 
@@ -73,26 +76,22 @@ fun ListViewScreen(
                     Card(
                         modifier = Modifier.padding(15.dp)
                     ) {
-//                        ResponseData(
-//                            title = title,
-//                            date = date,
-//                            explanation = explanation,
-//                            hdurl = hdurl
-//                        )
-                    }
-
-                    OutlinedButton(onClick = {
-
-                        dataList.value?.data?.get(index)?.let { insert(it) }
-
-                    }) {
-                        Text(text = "Save to Favorites")
+                        ResponseData(
+                            title = title,
+                            date = date,
+                            explanation = explanation,
+                            hdurl = hdurl,
+                            unFavorite = unFavorite,
+                            apod = current,
+                            favorite = insert,
+                            onFavoriteScreen = false
+                        )
                     }
                 }
             }
         }
-        dataList.value?.error?.isNotEmpty() == true -> {
-            Text(text = dataList.value?.error!!)
+        state?.error?.isNotEmpty() == true -> {
+            Text(text = state.error)
         }
     }
 }

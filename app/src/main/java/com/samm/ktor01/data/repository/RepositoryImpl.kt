@@ -24,9 +24,7 @@ class RepositoryImpl(private val dao: FavoritesDao) : Repository {
 
     override suspend fun getDataList(count: Int): List<Apod?> {
         return try {
-            KtorClient.createHttpClient().use { ktor ->
-                ktor.get(BASE_URL_LIST_ENDPOINT(count))
-            }
+            KtorClient.createHttpClient().get(BASE_URL_LIST_ENDPOINT(count))
         } catch (e: Exception) {
             e.message?.let { Log.e("RepositoryImpl error", it) }
             listOf()

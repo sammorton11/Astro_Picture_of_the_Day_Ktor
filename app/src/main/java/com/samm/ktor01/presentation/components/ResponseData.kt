@@ -27,9 +27,6 @@ fun ResponseData(
     onFavoriteScreen: Boolean
 ) {
 
-    // Todo: use the state arg to determine if the item exists in the favorites database
-    // if not - icon is bordered
-
     var favoriteIcon by remember { mutableStateOf(Icons.Filled.FavoriteBorder) }
 
     if (onFavoriteScreen) {
@@ -69,14 +66,12 @@ fun ResponseData(
                             when (favoriteIcon) {
                                 Icons.Filled.Favorite -> {
                                     favoriteIcon = Icons.Filled.FavoriteBorder
-                                    // Todo: Remove From Favorites
                                     if (apod != null) {
                                         unFavorite(apod)
                                     }
                                 }
                                 Icons.Filled.FavoriteBorder -> {
                                     favoriteIcon = Icons.Filled.Favorite
-                                    // Todo: Add to favorites
                                     if (apod != null) {
                                         favorite(apod)
                                     }
